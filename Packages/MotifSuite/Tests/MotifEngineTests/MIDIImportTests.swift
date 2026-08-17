@@ -308,6 +308,40 @@ final class MIDIImportTests: XCTestCase {
         XCTAssertEqual(result.combined.midis.sorted(), [60, 63, 67, 70])
     }
 
+    /// Doubled pitches with differing durations — the case that broke the round-trip check on
+    /// real music.
+    ///
+    /// An orchestral reduction has many instruments striking the same pitch at the same instant
+    /// and releasing at different times. The checker used to sort on (onset, midi) only, so these
+    /// entries compared equal under the key while differing in the field it ignored, and since
+    /// `sorted` is not stable the two sides could order them differently. Beethoven's Fifth
+    /// reported a mismatch on a byte-for-byte correct import; this is that file in miniature.
+    func testDoubledPitchesWithDifferentDurationsRoundTrip() throws {
+        var builder = MIDIBuilder()
+        // Four voices strike middle C together and hold it for four different lengths.
+        builder.addTrack([
+            (0,   noteOn(60, channel: 0)),
+            (0,   noteOn(60, channel: 1)),
+            (0,   noteOn(60, channel: 2)),
+            (0,   noteOn(60, channel: 3)),
+            (120, noteOff(60, channel: 0)),
+            (120, noteOff(60, channel: 1)),
+            (120, noteOff(60, channel: 2)),
+            (120, noteOff(60, channel: 3))
+        ])
+
+        let file = try MIDIFile(bytes: builder.bytes())
+        XCTAssertEqual(file.notes.count, 4)
+        XCTAssertEqual(Set(file.notes.map(\.durationTicks)).count, 4,
+                       "the four should differ only in duration")
+
+        let importer = MIDIImport(space: .cMajor)
+        let result = importer.imported(file)
+
+        XCTAssertTrue(importer.soundsIdentical(result, to: file),
+                      "identical pitch and onset with differing durations must still round-trip")
+    }
+
     /// The same music imported against the wrong key still sounds right and spells differently.
     /// This is the distinction the round-trip check exists to draw.
     func testWrongSpaceChangesSpellingButNotSound() throws {

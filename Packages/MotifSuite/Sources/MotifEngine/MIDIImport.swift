@@ -110,12 +110,28 @@ public extension MIDIImport {
     /// point. It separates "we spelled it unusually" from "we got the note wrong", and only the
     /// second is a bug in this layer.
     func soundsIdentical(_ result: Result, to file: MIDIFile) -> Bool {
+        // The ordering must be TOTAL over everything being compared.
+        //
+        // An earlier version of this method sorted on (onset, midi) and left duration out. On a
+        // hand-written test that is harmless; on Beethoven's Fifth it reported a mismatch for a
+        // perfectly correct import. An orchestral reduction doubles the same pitch across many
+        // instruments at the same instant with different durations, so the two sides were full of
+        // entries that compared equal under the key but differed in the field the key ignored —
+        // and `sorted` is not guaranteed stable, so the two arrays were free to order those
+        // entries differently.
+        //
+        // This is precisely the failure Note.canonicallyPrecedes was written to prevent, restaged
+        // in the checker rather than the type. The lesson generalises: a comparison key that does
+        // not reach every compared field is not a comparison.
+        func precedes(_ a: (Int, Rational, Rational), _ b: (Int, Rational, Rational)) -> Bool {
+            if a.1 != b.1 { return a.1 < b.1 }     // onset
+            if a.0 != b.0 { return a.0 < b.0 }     // sounding pitch
+            return a.2 < b.2                        // duration
+        }
+
         let imported = result.combined.notes
             .map { ($0.midi(in: space), $0.onset, $0.duration) }
-            .sorted { lhs, rhs in
-                if lhs.1 != rhs.1 { return lhs.1 < rhs.1 }
-                return lhs.0 < rhs.0
-            }
+            .sorted(by: precedes)
 
         let original = file.notes
             .map { (
@@ -123,10 +139,7 @@ public extension MIDIImport {
                 Rational($0.onsetTicks, file.ticksPerQuarter),
                 Rational($0.durationTicks, file.ticksPerQuarter)
             ) }
-            .sorted { lhs, rhs in
-                if lhs.1 != rhs.1 { return lhs.1 < rhs.1 }
-                return lhs.0 < rhs.0
-            }
+            .sorted(by: precedes)
 
         guard imported.count == original.count else { return false }
         return zip(imported, original).allSatisfy { $0 == $1 }
