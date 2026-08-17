@@ -1,7 +1,15 @@
 # A Motivic Transformation Algebra with a Description-Length Criterion
 
-**Internal working paper, v0.3** — Music Motif project
+**Internal working paper, v0.7** — Music Motif project
 **Revised 17 August 2026.** Supersedes *The Motivic Transformation Algebra* v0.1.
+v0.4 added §11.4 (the tower as a Galois connection), §12.4 (the sweet spot as sophistication,
+with the measured order–chaos axis), and predictions 8–9. v0.5 added §11.5 (the arc theorem:
+keys as arcs on the circle of fifths, ℤ/12 as the algebraic closure, minimal-arc semantics for
+the key-pointing effect) and prediction 10. v0.6 added §11.6 (the ℤ/7 lens: Myhill's property
+verified, the three readings of an adjoined accidental, keys as pointed arcs) and
+prediction 11. v0.7 adds §11.7 (the classification of spaces: well-formed / asymmetric /
+symmetric regimes, Messiaen's modes as the stabilizer column, key-pointing degrading with
+symmetry as arithmetic).
 
 ---
 
@@ -658,6 +666,245 @@ specific value is code-dependent and must be reported as such.
   the observation that a single alteration is cheaper to encode as a *partial* space declaration
   than as a residual, but no formulation of "partial declaration" has been settled.
 
+### 11.4 The tower, recovered: Galois connections
+
+The source notes keep returning to a tower picture: scale extensions stacked like
+`ℚ ⊂ ℚ(√2) ⊂ ℚ(√2, √3)`, adjoining an accidental like adjoining a radical, with intermediate
+extensions in between and a correspondence organising them. §1 retracted the *field* version of
+this — `ℤ/12` has zero divisors, and a diatonic set is not a subring. But the intuition should
+not be discarded with the formalism, because the modern skeleton of Galois theory is not about
+fields at all. It is order-theoretic: an **antitone Galois connection** between two posets,
+whose closed elements form dually isomorphic lattices. Fields-and-groups is one instance.
+There is another instance sitting inside a score, exactly where the notes point.
+
+Take the two posets to be sets of **time spans** `T` and sets of **pitches** `P` (spelled, per
+§2.2), ordered by inclusion, with the maps
+
+```
+T ↦ P(T) = the set of pitches sounding within T
+P ↦ T(P) = the largest union of spans using only pitches from P
+```
+
+This pair is an antitone Galois connection, so `P(T(·))` and `T(P(·))` are closure operators,
+and the closed pairs — a span-set together with exactly the pitch material it uses — are
+**formal concepts** in the sense of Formal Concept Analysis. They form a complete lattice.
+
+That lattice *is* the tower, made rigorous:
+
+- **Adjoining a radical** = passing to the join with the new pitch: the closure of
+  `{C-major} ∪ {F♯}` is the smallest closed extension containing the intruder — precisely the
+  "invasive species alters the local ecosystem" picture, as a closure operator.
+- **Intermediate extensions** = intermediate elements of the concept lattice — the analogue of
+  the fundamental theorem's intermediate fields, and they are *computable from the score*
+  rather than posited.
+- **Extension rate and persistence** (§11.1–11.2) become properties of a concept's extent: how
+  fast its span-set grows, and how long it survives before the closure collapses back.
+- **The tower diagram** the notes want to draw — `C → C+F♯ → G → …` — is a chain in this
+  lattice, and the whole lattice shows which chains coexist and where they merge.
+
+**[open]** What replaces the Galois *group* — the automorphisms fixing a base — is not yet
+worked out; candidates are the invertible transformations of §4 that stabilise a concept.
+**[open]** Connecting concept-lattice structure to the §11.2 declaration threshold: a space
+declaration should be profitable exactly when a concept's extent is large enough, which would
+tie the lattice to the bit criterion. Until then the honest statement is: the tower is real,
+its correct formalisation is a Galois connection rather than a Galois extension, and the beauty
+the notes locate "in the chords and melodies of one of the key extensions" is priced by the
+§11.3 tension curve — the bits spent on alterations, plotted over the very spans the lattice
+identifies.
+
+### 11.5 The arc theorem: the tower's numbers are exact
+
+Gregory's counting — C major is 7 of 12 notes; adjoin F♯ and the 8-note set contains the
+chords of both C and G; adjoin C♯ too and the 9 notes contain C, G, and D; the further from C,
+the more notes the extension needs — is not merely suggestive. It is a theorem about arcs.
+
+**Theorem 11.1.** Order the twelve pitch classes by fifths: F–C–G–D–A–E–B–F♯–C♯–G♯–D♯–A♯.
+Then (i) every major-key collection is an **arc of 7 consecutive positions** in this cyclic
+order; (ii) extending an arc by `k` positions sharpwise yields a set of `7+k` notes containing
+exactly `k+1` complete major keys, for `0 ≤ k ≤ 4`; (iii) at `k = 5` the arc closes and the
+set contains all twelve keys at once.
+
+**[verified]** Checked exhaustively: all 12 major keys are 7-arcs, and the extension chain from
+C gives 1, 2, 3, 4, 5 keys inside for `k = 0…4` — precisely the counts in the source notes —
+then jumps to 12 at `k = 5`. (The underlying classical fact is that the diatonic collection is
+a *generated set* — seven consecutive fifths — in the sense of Clough–Douthett's diatonic set
+theory; maximal evenness is the same property seen from the other side.)
+
+Three consequences worth stating plainly.
+
+**ℤ/12 is the algebraic closure.** The observation that "every key fits into ℤ/12, so it is
+meaningless" is exactly right, and it completes the field analogy at the correct point: the
+chromatic gamut plays the role of `ℚ̄`. The algebraic closure contains every root of every
+polynomial and for that very reason carries no information about any particular equation; all
+Galois-theoretic content lives in the *finite subextensions*. Likewise the chromatic set
+contains every key and says nothing; all tonal content lives in which **arc** the music
+currently inhabits. Theorem 11.1(iii) is the collapse into the closure, visible in the
+computation.
+
+**The equation-solving parallel is exact at the level of minimal closures.** "Solving
+`3x = 5` needs no extension of ℚ; solving `x² − 2 = 0` forces √2; solving `(x²−2)(x²−3)`
+forces √3 as well." Translate: the *chord you need* determines the *minimal arc containing
+it*. A D-major triad `{D, F♯, A}` is unsolvable in the C arc; its minimal enclosing arc is the
+8-note C∪G extension — F♯ is the radical the equation forces. This is the secondary dominant:
+V-of-V in C is the musical `x² − 2 = 0`, the most common single-accidental event in tonal
+music. And it makes the §11.3 **key-pointing effect** a definition rather than a metaphor:
+F♯ "points to G" because the minimal closed extension of the current arc containing F♯ has G
+as its new complete key. What the notes called math-like is, at this level, just math.
+
+**What carries over and what does not.** The lattice of intermediate extensions generated by
+independent adjunctions carries over: subsets of adjoined accidentals correspond to
+intermediate arcs, with sharpwise and flatwise as the two independent directions of growth
+(adjoining C♯ without F♯ leaves a *gap* in the arc — a genuinely chromatic, non-tonal set —
+just as adjoining √3 does not yield √2). Two things do not carry over and should not be
+claimed: degree multiplicativity (`[ℚ(√2,√3):ℚ] = 4` has no musical analogue, since arcs grow
+additively), and the Galois *group* of an extension, which remains **[open]** as noted in
+§11.4. The nearest existing structure to a group traversing the tower is Hook's **signature
+transforms** — the operations that slide a key signature sharpwise or flatwise — which act on
+the set of 7-arcs exactly as rotation acts on arcs of a 12-cycle.
+
+**A pricing refinement this forces. [open]** §11.2 prices every space declaration from scratch
+(53–59 bits). The arc picture says declarations should be priced as *slides*: a modulation to
+an adjacent key is a one-position shift of the arc and should cost a few bits, a distant key
+proportionally more — cost growing with circle-of-fifths distance. That changes the modulation
+threshold from a constant into a function of key distance, and it yields a new falsifiable
+prediction (No. 10): under MDL, near modulations are preferred explanations, so **modulation
+frequency in real corpora should decay with fifths-distance** — which matches known tonal
+practice and can be checked against annotated corpora directly.
+
+### 11.6 The ℤ/7 lens: generic intervals, Myhill's property, and pointed arcs
+
+The key of C, viewed on its own terms, is a copy of ℤ/7 — degree indices 1̂…7̂ — together with
+an **embedding** into the chromatic lattice: `C D E F G A B ↦ 0 2 4 5 7 9 11`. Adding 1 in ℤ/7
+lands 1 or 2 semitones away depending on where you stand. This pair — the degree lattice, the
+embedding — is precisely the `Space`/`Pitch` structure of §2, and the two-sizes phenomenon is
+not an irregularity to be tolerated but a *theorem with a name*:
+
+**Theorem 11.2 (Myhill's property). [verified]** In the major embedding, *every* generic
+interval — not only the step — comes in exactly two specific sizes:
+
+```
+generic step      →  1 or 2 semitones
+generic third     →  3 or 4
+generic fourth    →  5 or 6
+generic fifth     →  6 or 7
+generic sixth     →  8 or 9
+generic seventh   →  10 or 11
+```
+
+Checked exhaustively over all seven positions for each generic interval. This is classical
+diatonic set theory (Clough–Myerson's *cardinality equals variety*; Carey–Clampitt's
+*well-formed scales* — the diatonic is well-formed because it is generated by the fifth, which
+is also why it is an arc in §11.5's ordering). The point of citing it here: **Myhill's property
+is the *cause* of the F–F–F–D phenomenon.** A diatonic transposition preserves the generic
+interval (a third) while the specific size flips between its two values (−4 ↔ −3). The
+"similar but not congruent" second statement of Beethoven 5, the tonal answer of fugue, and
+the ±1-semitone tolerance result of §13.1 are all corollaries of one embedding property.
+
+**The three readings of an adjoined F♯.** Set against a C-major context, a sounding F♯ admits
+exactly three structural interpretations, and all three are representable in the algebra:
+
+1. **Alteration** — F♯ = `(step F, +1)`: stay in C's frame; the chord built on D changes
+   quality (D minor → D major) while every degree keeps its index. Priced as residual bits.
+2. **Modulation** — the arc slides one position sharpwise *and the anchor re-latches to G*:
+   "G maps to 1̂." Priced as an arc-slide plus re-anchor.
+3. **Mode** — the arc slides but the anchor *stays on C*: C Lydian. **[verified]** the C Lydian
+   collection and the G major collection are the *same set*; they differ only in which element
+   is the tonic.
+
+Reading 3 is the one the modulation threshold of §11.2 was silently missing, and it is common
+practice — the Lydian IV-of-IV colour in popular music is exactly a D-major chord in a C
+context that never resolves to G. Its existence forces a refinement of the arc theorem:
+
+> **A key is a *pointed* arc.** The collection determines the arc; the tonic is a separate
+> point on it. Modulation proper changes both arc and point (C → G). Modal shift changes the
+> point only (C major → A minor: same arc, new point) or the arc only (C major → C Lydian:
+> new arc, same point). The three readings of F♯ are: no change (alteration), both change
+> (modulation), arc-only change (mode).
+
+This decomposition makes §11.2's decision three-way rather than two-way, each branch with a
+computable price: residual bits (reading 1), slide + re-anchor bits (reading 2), slide-only
+bits (reading 3). Which reading wins on a given passage is decided by persistence — §11.2's
+break-even — not by assertion. **[open]** Implement the three-way pricing; predict that
+short-lived F♯s resolve to reading 1, F♯s followed by cadential confirmation on G to reading
+2, and sustained F♯s over a C pedal to reading 3.
+
+**On "inventing new mathematics."** The instinct that neither ℤ/7 nor ℤ/12 alone is the right
+object is correct — the right object is the *triple* (degree lattice, embedding, anchor
+point), with maps required to respect it. But the components are not new: the embedding and
+its two-sizes behaviour are Clough–Myerson and Carey–Clampitt; the action is Lewin; the
+pricing is Rissanen's MDL. What has no precedent is the *assembly* — spelled pitch as stored
+state inside a cost-scored derivation algebra. New structure was needed and built; new axioms
+were not. That is the honest version of the claim, and it is also the defensible one.
+
+### 11.7 All keys at once: the classification of spaces
+
+"The only difference between C major, C minor and C dorian is how 1̂, 2̂, 3̂ are mapped with
+different jumps — and a slight change in that definition gives all keys, even those not
+created by a circle of fifths." Correct, and it is the `Space` type verbatim: a tonic plus an
+ascending pattern, with chromatic as the pattern (0,1,…,11) rather than a special case. Every
+map, both theorems, the derivation programs and the pricing are pattern-independent by
+construction.
+
+What is *not* pattern-independent is the §11.5–11.6 superstructure — Myhill, the arc theorem,
+key-pointing — and it fails in classifiable ways that correspond to things one can hear.
+**[verified]** For each pattern: step sizes (with wrap), number of specific sizes per generic
+interval, Myhill, single-interval generatedness, and the transposition stabilizer:
+
+```
+scale              steps      sizes/generic          Myhill   gen by   |stab|
+C major            {1,2}      2,2,2,2,2,2            yes      fifth    1
+C natural minor    {1,2}      2,2,2,2,2,2            yes      fifth    1
+C dorian           {1,2}      2,2,2,2,2,2            yes      fifth    1
+C harmonic minor   {1,2,3}    3,2,3,3,2,3            no       —        1
+C melodic minor ↑  {1,2}      2,2,3,3,2,2            no       —        1
+C pentatonic       {2,3}      2,2,2,2                yes      fifth    1
+whole tone         {2}        1,1,1,1,1              no       step     6
+octatonic          {1,2}      2,1,2,1,2,1,2          no       —        4
+Hungarian minor    {1,2,3}    3,3,3,3,3,3            no       —        1
+chromatic          {1}        1,1,…,1                no       semitone 12
+```
+
+Three consequences.
+
+**Modes are the same row.** Major, natural minor and dorian are indistinguishable in every
+column — they are rotations of one pattern, i.e. the same arc with a different anchor point,
+which is exactly the pointed-arc statement of §11.6. The claim that opened this section is a
+theorem about rotations.
+
+**Three regimes, two axes.** The scales organise along *variety* (the sizes-per-generic
+profile) and *symmetry* (the stabilizer):
+
+1. **Well-formed** (major and its modes, pentatonic): fifth-generated, Myhill exactly,
+   trivial stabilizer. The full §11.5–11.6 apparatus applies — arcs, towers, sharp
+   key-pointing.
+2. **Asymmetric, non-generated** (harmonic minor, melodic minor, Hungarian minor): no single
+   generator, Myhill fails — harmonic minor's augmented second is a *third step size*, and
+   Hungarian minor achieves three sizes for *every* generic interval, maximal variety. The
+   arc theorem does not apply, so their extension towers are not fifths-chains; but the
+   stabilizer is trivial, so key-pointing still works. These are the scales that are *in* the
+   algebra but *off* the circle-of-fifths tower — precisely the "keys not created by a circle
+   of fifths."
+3. **Symmetric — Messiaen's modes of limited transposition** (whole tone, octatonic,
+   chromatic): non-trivial stabilizer. Messiaen's celebrated category is, in this table, one
+   column: `|stab| > 1` ⟺ the pattern is periodic.
+
+**Key-pointing degrades with symmetry, by arithmetic.** A transposition of a scale with
+stabilizer of order σ carries only `log₂(12/σ)` bits — the cost model prices whole-tone
+transposition at `log₂ 2 = 1` bit and chromatic transposition at 0. Minimal-arc closure
+(§11.5) is unique for regime 1, non-unique in proportion to σ for regime 3. This is the
+formal content of the whole-tone scale's "floating" quality: its anchor is almost
+information-free. And it explains a line from the Beethoven analysis (Set 5's structural map,
+p. 15: *"diminished 7th chords exploited — maximum harmonic instability"*): the diminished
+seventh is the octatonic's symmetric core, stabilizer order 4, so it points four ways at once
+— which is exactly why it is *the* classical modulation pivot. Maximum instability = maximum
+stabilizer, as an equation rather than a metaphor.
+
+One observation held at arm's length: the diatonic row — two sizes everywhere, no symmetry —
+maximises interval variety subject to evenness while carrying full key information. It sits
+between whole-tone (too even: no variety, no anchor) and Hungarian minor (maximal variety, no
+tower). That the historically dominant scale occupies this particular extreme point resonates
+with §12.4's sweet-spot claim, but the resonance is noted, not asserted.
+
 ---
 
 ## 12. Style, and the aesthetic hypothesis
@@ -701,6 +948,57 @@ baseline.
 **[conjecture]** The claim that would extend it: **grammatical description length adds
 predictive power over IDyOM's statistical description length.** Specific, falsifiable, and the
 right shape for a first external result.
+
+### 12.4 The sweet spot, formalised
+
+The governing aesthetic intuition is a two-sided constraint: **minimal seeds and minimal
+transformations** — since with enough of either anything can be recreated and the analysis
+proves nothing — while avoiding both extremes: the monotone end (repeated pitches, scales) and
+the chaotic end (twelve-tone-like patternlessness). The sweet spot between them is the goal.
+
+MDL formalises this axis directly, and the piece under study already sits on it. **[measured]**
+Literal encoding cost of five sequences of identical length (1362 notes):
+
+```
+repeated single pitch        1.00 b/note      ← monotone extreme
+monotonous scale             3.40 b/note
+BEETHOVEN op18/1, real       4.16 b/note      ← the music
+same pitches, shuffled       7.39 b/note
+uniform random pitches       8.49 b/note      ← chaotic extreme
+```
+
+Real Beethoven lies strictly between order and chaos — compressible, but far from degenerate.
+
+But raw bits per note is not the beauty number, because both extremes score *low or high* on it
+monotonically. The right quantity is the **two-part split** at the MDL-optimal analysis:
+
+```
+L(piece) = L(model) + L(residual | model)
+```
+
+Define the **structure content** `S(piece) = L(model*)` — the bits invested in seeds,
+vocabulary and derivation at the optimum. Then:
+
+- **monotone extreme**: tiny model, tiny residual → `S` small;
+- **chaotic extreme**: nothing compresses, the optimal model is *empty* and everything is
+  residual → `S` small again;
+- **the conjectured sweet spot**: `S` large — much of the piece is genuinely structured, and
+  the structure itself is rich.
+
+`S` is (a computable proxy for) Kolmogorov **sophistication**, and the same idea appears as
+Gell-Mann's *effective complexity* and is cousin to Bennett's *logical depth*. Both extremes
+score low; only material that is deeply but not trivially patterned scores high. **[conjecture]**
+Beloved melodies have high structure content `S` relative to length; monotone exercises and
+shuffled controls both score low. This is the precise form of "navigating the sweet spot", and
+it is measurable with the machinery already built.
+
+**Cross-piece comparison** then has a natural formal object. Each analysed piece yields a
+vocabulary `Σᵢ`; the right thing to compare is not the lists but the **submonoids ⟨Σᵢ⟩ they
+generate** inside the full transformation monoid (and the subgroups `⟨Σᵢ⟩ ∩ G_inv` inside the
+invertible part, where genuine group theory applies). **[conjecture]** Across acknowledged
+masterpieces the intersection `⟨Σ₁⟩ ∩ ⟨Σ₂⟩ ∩ ⋯` is small and non-trivial — a candidate
+*canonical vocabulary* — while the per-piece complements carry style. One great piece
+deconstructed gives `Σ₁`; the second gives the first intersection; that is the order of work.
 
 ---
 
@@ -774,6 +1072,18 @@ The list that makes this a theory rather than a formalism.
    survives a shuffled-label null model.
 7. **[conjecture]** Grammatical description length adds predictive power over IDyOM's statistical
    description length in modelling listener expectation (§12.3).
+8. **[conjecture]** Structure content `S` (§12.4) is high for beloved melodies and low for both
+   monotone and shuffled controls of the same length — the sweet-spot claim, as one number.
+9. **[conjecture]** The generated submonoids `⟨Σᵢ⟩` of independently analysed masterpieces have
+   a small non-trivial intersection — a canonical vocabulary — with style carried by the
+   complements (§12.4).
+10. **[conjecture]** Under arc-slide pricing of modulation (§11.5), near modulations are
+    preferred explanations, so modulation frequency in real corpora decays with
+    circle-of-fifths distance.
+11. **[conjecture]** Under three-way pricing of an adjoined accidental (§11.6), short-lived
+    accidentals encode as alterations, accidentals followed by cadential confirmation as
+    modulations, and sustained accidentals over a stable bass as modal shifts — matching how
+    listeners and analysts actually classify them.
 
 ---
 

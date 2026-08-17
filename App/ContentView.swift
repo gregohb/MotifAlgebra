@@ -19,26 +19,60 @@ import MotifEngine
 
 struct ContentView: View {
 
-    /// A seed motif: four notes rising from middle C through the C major lattice.
     /// Step 35 is middle C — the lattice is absolute and zero-based.
     private static let middleC = 35
 
-    private let seed = Phrase([
-        Note(Rational(0), .quarter, middleC),
-        Note(.quarter, .quarter, middleC + 2),
-        Note(.half, .quarter, middleC + 4),
-        Note(Rational(3, 4), .quarter, middleC + 3)
-    ], in: .cMajor)
+    /// What the transforms are applied to. The two real scores are hand-encoded in MotifEngine;
+    /// playing them is how their encoding gets checked.
+    private enum Source: String, CaseIterable, Identifiable {
+        case scale = "Four-note figure"
+        case furElise = "Für Elise (opening)"
+        case fifth = "Symphony No. 5 (motto)"
+
+        var id: String { rawValue }
+
+        var phrase: Phrase {
+            switch self {
+            case .scale:
+                return Phrase([
+                    Note(Rational(0), .quarter, ContentView.middleC),
+                    Note(.quarter, .quarter, ContentView.middleC + 2),
+                    Note(.half, .quarter, ContentView.middleC + 4),
+                    Note(Rational(3, 4), .quarter, ContentView.middleC + 3)
+                ], in: .cMajor)
+            case .furElise:
+                return Scores.furEliseMelody
+            case .fifth:
+                return Scores.fifthSymphonyMotto
+            }
+        }
+
+        /// Für Elise wants a slower reading than a bare figure does.
+        var suggestedTempo: Tempo {
+            switch self {
+            case .scale: return Tempo(bpm: 100)
+            case .furElise: return Tempo(bpm: 60)
+            case .fifth: return Tempo(bpm: 108)
+            }
+        }
+    }
 
     @StateObject private var player = Player()
+    @State private var source: Source = .scale
     @State private var tempo = Tempo(bpm: 100)
     @State private var nowPlaying: String?
 
+    private var seed: Phrase { source.phrase }
+
     private var rows: [Row] {
+        // Invert about the seed's own first degree, so the image stays in register whatever
+        // the source. Inverting Für Elise about middle C would put it under the floor.
+        let anchor = seed.notes.first?.pitch.step ?? Self.middleC
+
         let catalogue: [(String, Transform)] = [
             ("identity", .identity),
             ("T+2", .translate(2)),
-            ("invert about middle C", .invert(about: Self.middleC)),
+            ("invert about first note", .invert(about: anchor)),
             ("retrograde", .retrograde),
             ("augment ×2", .augment(Rational(2))),
             ("retrograde ∘ T+4", Transform.retrograde.then(.translate(4)))
@@ -66,11 +100,24 @@ struct ContentView: View {
     // MARK: - Header
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("MotifSuite")
-                .font(.title2.weight(.semibold))
-            Text("Seed \(seed.description) in \(seed.space.name) — "
-                 + "\(seed.count) notes spanning \(seed.span.description)")
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("MotifSuite")
+                    .font(.title2.weight(.semibold))
+                Spacer()
+                Picker("Seed", selection: $source) {
+                    ForEach(Source.allCases) { Text($0.rawValue).tag($0) }
+                }
+                .pickerStyle(.segmented)
+                .fixedSize()
+                .onChange(of: source) { _ in
+                    player.stop()
+                    nowPlaying = nil
+                    tempo = source.suggestedTempo
+                }
+            }
+            Text("\(seed.count) notes in \(seed.space.name), spanning "
+                 + "\(seed.span.description) quarter notes")
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .monospaced()
@@ -182,12 +229,20 @@ struct ContentView: View {
 
         var id: String { name }
 
+        /// Truncated — Für Elise's opening is 37 notes and would push every other column off
+        /// the window.
         var pitchNames: String {
-            image.notes.map { $0.pitch.name(in: image.space) }.joined(separator: " ")
+            let names = image.notes.map { $0.pitch.name(in: image.space) }
+            return names.count <= 10
+                ? names.joined(separator: " ")
+                : names.prefix(10).joined(separator: " ") + " … (\(names.count))"
         }
 
         var intervals: String {
-            image.stepIntervals.map(String.init).joined(separator: " ")
+            let steps = image.stepIntervals.map(String.init)
+            return steps.count <= 10
+                ? steps.joined(separator: " ")
+                : steps.prefix(10).joined(separator: " ") + " …"
         }
     }
 }
