@@ -1,0 +1,32 @@
+# macOS
+.DS_Store
+
+# Xcode — build output and per-user state
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Xcode — the shared scheme in xcshareddata/ IS tracked; only per-user schemes are not.
+# (xcuserdata/ above already covers those.)
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved.backup
+
+# Note: Package.resolved is intentionally NOT ignored. It pins dependency
+# versions, and MotifEngine will acquire real dependencies.
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# Injected by Xcode's package resolution inside the project wrapper
+*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/configuration
+*.xcodeproj/project.xcworkspace/xcuserdata/
