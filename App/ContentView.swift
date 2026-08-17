@@ -2,35 +2,43 @@
 //  ContentView.swift
 //  MotifSuite
 //
-//  A placeholder, but not an empty one.
+//  Still a placeholder for the real motif browser, but now an audible one.
 //
-//  It takes a seed motif, applies each of the four Transform constructors, and reports what the
-//  algebra says about the result — the sounding pitches, the step-interval vector, the similarity
-//  class against the seed, and the MDL bit-cost of the transform itself. If this window renders
-//  with plausible numbers in it, the package is correctly linked and the module boundary holds.
+//  It takes a seed motif, applies each transform constructor, and reports what the algebra says
+//  about the result — sounding pitches, step-interval vector, similarity class against the seed,
+//  and the MDL bit-cost of the transform itself. Each row plays.
 //
-//  Replace it with the real motif browser; the point of the file is that there is something to
-//  replace.
+//  Hearing the rows is the point of wiring playback in this early. `retrograde ∘ T+4` having a
+//  bit-cost of 9.2 is a claim about an encoding; whether it sounds like the seed is a claim about
+//  music, and only one of those can be checked by reading the table.
 //
 
 import SwiftUI
 import MotifAlgebra
+import MotifEngine
 
 struct ContentView: View {
 
-    /// A seed motif: four notes rising through the C major lattice.
+    /// A seed motif: four notes rising from middle C through the C major lattice.
+    /// Step 35 is middle C — the lattice is absolute and zero-based.
+    private static let middleC = 35
+
     private let seed = Phrase([
-        Note(Rational(0), .quarter, 0),
-        Note(.quarter, .quarter, 2),
-        Note(.half, .quarter, 4),
-        Note(Rational(3, 4), .quarter, 3)
+        Note(Rational(0), .quarter, middleC),
+        Note(.quarter, .quarter, middleC + 2),
+        Note(.half, .quarter, middleC + 4),
+        Note(Rational(3, 4), .quarter, middleC + 3)
     ], in: .cMajor)
+
+    @StateObject private var player = Player()
+    @State private var tempo = Tempo(bpm: 100)
+    @State private var nowPlaying: String?
 
     private var rows: [Row] {
         let catalogue: [(String, Transform)] = [
             ("identity", .identity),
             ("T+2", .translate(2)),
-            ("invert about C", .invert(about: 0)),
+            ("invert about middle C", .invert(about: Self.middleC)),
             ("retrograde", .retrograde),
             ("augment ×2", .augment(Rational(2))),
             ("retrograde ∘ T+4", Transform.retrograde.then(.translate(4)))
@@ -48,30 +56,14 @@ struct ContentView: View {
         VStack(alignment: .leading, spacing: 0) {
             header
             Divider()
-            Table(rows) {
-                TableColumn("Transform") { row in
-                    Text(row.name).fontWeight(.medium)
-                }
-                TableColumn("Notation") { row in
-                    Text(row.transform.description).monospaced()
-                }
-                TableColumn("Pitches") { row in
-                    Text(row.pitchNames).monospaced()
-                }
-                TableColumn("Intervals") { row in
-                    Text(row.intervals).monospaced()
-                }
-                TableColumn("Similarity") { row in
-                    Text(row.similarity.description)
-                        .foregroundStyle(row.similarity.isFalsifiableOnItsOwn
-                                         ? Color.primary : Color.secondary)
-                }
-                TableColumn("Bits") { row in
-                    Text(String(format: "%.1f", row.transform.bitCost)).monospaced()
-                }
-            }
+            table
+            Divider()
+            transport
         }
+        .onDisappear { player.stop() }
     }
+
+    // MARK: - Header
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -86,6 +78,101 @@ struct ContentView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
     }
+
+    // MARK: - Table
+
+    private var table: some View {
+        Table(rows) {
+            TableColumn("") { row in
+                Button {
+                    play(row)
+                } label: {
+                    Image(systemName: nowPlaying == row.name && player.state == .playing
+                          ? "stop.fill" : "play.fill")
+                }
+                .buttonStyle(.borderless)
+                .help("Play \(row.name)")
+            }
+            .width(28)
+
+            TableColumn("Transform") { row in
+                Text(row.name).fontWeight(.medium)
+            }
+            TableColumn("Notation") { row in
+                Text(row.transform.description).monospaced()
+            }
+            TableColumn("Pitches") { row in
+                Text(row.pitchNames).monospaced()
+            }
+            TableColumn("Intervals") { row in
+                Text(row.intervals).monospaced()
+            }
+            TableColumn("Similarity") { row in
+                Text(row.similarity.description)
+                    .foregroundStyle(row.similarity.isFalsifiableOnItsOwn
+                                     ? Color.primary : Color.secondary)
+            }
+            TableColumn("Bits") { row in
+                Text(String(format: "%.1f", row.transform.bitCost)).monospaced()
+            }
+        }
+    }
+
+    // MARK: - Transport
+
+    private var transport: some View {
+        HStack(spacing: 16) {
+            Button {
+                player.stop()
+                nowPlaying = nil
+            } label: {
+                Label("Stop", systemImage: "stop.fill")
+            }
+            .disabled(player.state == .stopped)
+
+            Divider().frame(height: 16)
+
+            Text("Tempo")
+                .foregroundStyle(.secondary)
+            Slider(value: Binding(get: { tempo.bpm },
+                                  set: { tempo = Tempo(bpm: $0) }),
+                   in: Tempo.minimumBPM ... Tempo.maximumBPM)
+                .frame(width: 160)
+            Text(tempo.description)
+                .monospaced()
+                .foregroundStyle(.secondary)
+                .frame(width: 190, alignment: .leading)
+
+            Spacer()
+
+            if let error = player.lastError {
+                Label(error, systemImage: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.orange)
+                    .lineLimit(1)
+                    .help(error)
+            } else if player.state == .playing, let nowPlaying {
+                Text("\(nowPlaying) — beat \(String(format: "%.1f", player.positionBeats))")
+                    .monospaced()
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 10)
+    }
+
+    // MARK: - Actions
+
+    private func play(_ row: Row) {
+        if nowPlaying == row.name && player.state == .playing {
+            player.stop()
+            nowPlaying = nil
+            return
+        }
+        nowPlaying = row.name
+        player.play(row.image, tempo: tempo)
+    }
+
+    // MARK: - Row
 
     private struct Row: Identifiable {
         let name: String
@@ -107,5 +194,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .frame(width: 720, height: 400)
+        .frame(width: 860, height: 420)
 }

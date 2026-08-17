@@ -16,9 +16,23 @@ The layering is the point. `MotifAlgebra` imports nothing but Foundation, so its
 under `swift test` with no app launched and no UI types in scope. A change to a view cannot
 break the mathematics, because the mathematics cannot see it.
 
-Planned, not yet written:
+`MotifEngine` sits on top of the algebra and holds everything that touches the outside
+world — files, voices, sound:
 
-- `MotifEngine` — voice separation, MIDI I/O, harmonic analysis, playback
+| | |
+| --- | --- |
+| `MIDIFile` | Standard MIDI File parsing; integer ticks, never divided early |
+| `MIDIImport` | the boundary — ticks to `Rational`, MIDI numbers to spelled `Pitch` |
+| `VoiceSeparator` | two-voice separation, by channel or greedily with look-ahead |
+| `Tempo` | BPM, markings, and note values as exact fractions |
+| `PlaybackSchedule` | what sounds when, computed ahead of time and independently per event |
+| `PlaybackEngine` | `AVAudioUnitSampler` — the only part that needs hardware |
+| `Player` | transport: absolute deadlines, cancellable, no busy loop |
+
+Still to come:
+
+- harmonic analysis — key and chord estimation, ported from AMT005's `MAHarmonicAnalyzer`.
+  Until it exists, `MIDIImport` takes the `Space` to spell against and does not guess.
 - `MotifApp` — the real interface: motif selection, sibling catalogue, DNA panel, compose mode
 
 ## Building and testing
@@ -55,8 +69,12 @@ changing anything:
 | `Transform.swift` | transformations compose; pitch and time maps commute |
 | `Similarity.swift` | the sign-vector classes, and why plain `similar` is chance-prone |
 | `BitCost.swift` | exact Elias-gamma coding, no floating-point `log2` |
+| `MIDIFile.swift` | accumulate ticks, divide once — a MIDI file's time base is already rational |
+| `PlaybackSchedule.swift` | why a playhead must be read from a clock, never accumulated |
 
 ## Status
 
-26 law tests, all passing. The algebra is verified; the engine and the real app are not yet
-written.
+74 tests, all passing — 26 algebra, 14 MIDI import, 9 voice separation, 22 scheduling,
+3 audio. The app plays: each transform in the table can be heard against the seed.
+
+Not yet done: harmonic analysis, and the real interface.

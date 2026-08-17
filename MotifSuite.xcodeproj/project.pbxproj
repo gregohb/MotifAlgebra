@@ -11,6 +11,7 @@
 		AA000000000000000000AA21 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000AA17 /* ContentView.swift */; };
 		AA000000000000000000AA22 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000AA18 /* Assets.xcassets */; };
 		AA000000000000000000AA25 /* MotifAlgebra in Frameworks */ = {isa = PBXBuildFile; productRef = AA000000000000000000AA24 /* MotifAlgebra */; };
+		AA000000000000000000AA27 /* MotifEngine in Frameworks */ = {isa = PBXBuildFile; productRef = AA000000000000000000AA26 /* MotifEngine */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +28,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA000000000000000000AA25 /* MotifAlgebra in Frameworks */,
+				AA000000000000000000AA27 /* MotifEngine in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +80,7 @@
 			name = MotifSuite;
 			packageProductDependencies = (
 				AA000000000000000000AA24 /* MotifAlgebra */,
+				AA000000000000000000AA26 /* MotifEngine */,
 			);
 			productName = MotifSuite;
 			productReference = AA000000000000000000AA06 /* MotifSuite.app */;
@@ -299,6 +302,10 @@
 		AA000000000000000000AA24 /* MotifAlgebra */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = MotifAlgebra;
+		};
+		AA000000000000000000AA26 /* MotifEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MotifEngine;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
