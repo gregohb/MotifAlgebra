@@ -23,17 +23,28 @@ let package = Package(
         .iOS(.v16)
     ],
     products: [
-        .library(name: "MotifAlgebra", targets: ["MotifAlgebra"])
+        .library(name: "MotifAlgebra", targets: ["MotifAlgebra"]),
+        .library(name: "MotifEngine", targets: ["MotifEngine"])
     ],
     targets: [
         .target(
             name: "MotifAlgebra",
             path: "Sources/MotifAlgebra"
         ),
+        .target(
+            name: "MotifEngine",
+            dependencies: ["MotifAlgebra"],
+            path: "Sources/MotifEngine"
+        ),
         .testTarget(
             name: "MotifAlgebraTests",
             dependencies: ["MotifAlgebra"],
             path: "Tests/MotifAlgebraTests"
+        ),
+        .testTarget(
+            name: "MotifEngineTests",
+            dependencies: ["MotifEngine"],
+            path: "Tests/MotifEngineTests"
         )
     ]
 )
